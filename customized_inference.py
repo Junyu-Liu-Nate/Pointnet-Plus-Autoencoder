@@ -91,6 +91,7 @@ def main():
     # modelPath = 'pointnet_pytorch/utils/cls/cls_model_75.pth'
     modelPath = 'log/classification/pointnet2_ssg_wo_normals/checkpoints/best_model.pth'
     # modelPath = 'log/classification/pointnet2_msg_normals/checkpoints/best_model.pth'
+    print("Model loaded.")
 
     # Initialize the model and load the trained weights
     # # model = PointNetCls(k=5)  # Initialize with number of classes
@@ -130,7 +131,7 @@ def main():
     featureList = featureArray.tolist()
 
     #%% Write features to file
-    featureDataPath = "/Users/liujunyu/Data/Research/BVC/ITSS/" + "pointnet2_airplane_600.txt"
+    featureDataPath = "/Users/liujunyu/Data/Research/BVC/ITSS/" + "pointnet2_airplane_600_test.txt"
     # Writing features to txt
     # write_features_to_txt(featureList, featureDataPath)
     write_features_to_txt(featureDataPath, featureList, mesh_paths)
