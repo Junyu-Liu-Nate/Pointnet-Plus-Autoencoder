@@ -21,10 +21,7 @@ def pc_normalize(pc):
     pc = pc / m
     return pc
 
-def pc_normalize_nonormalize(pc):
-    centroid = np.mean(pc, axis=0)
-    pc = pc - centroid
-    return pc
+
 
 
 def farthest_point_sample(point, npoint):

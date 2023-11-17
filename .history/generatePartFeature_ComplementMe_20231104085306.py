@@ -51,12 +51,12 @@ def main():
     datasetType = "parts"
     category = "Airplane"
     # dataType = "part_all_centered_point_clouds"
-    dataType = "part_all_original_decompose_resample_point_clouds_v3"
+    dataType = "part_all_original_decompose_resample_point_clouds"
     pcDataPath = os.path.join(dataset, datasetType, category, dataType)
 
     #%%
     # saveFolderName = "part_all_centered_features"
-    saveFolderName = "part_all_decompose_resample_features_v3"
+    saveFolderName = "part_all_decompose_resample_features"
     saveFolder = os.path.join(dataset, datasetType, category, saveFolderName)
 
     #%% Generate and save PointNet features

@@ -105,7 +105,7 @@ def get_all_pointnet_features(selectedWholeNames):
 
 def main():
     datasetFolder = os.path.join(PROJECT_PATH, "generated")
-    outputName = "pairs_ComplementMe_airplane_decompose_resample_exact_oct_train_v3"
+    outputName = "pairs_ComplementMe_airplane_decompose_resample_exact_oct_train"
     outputPath = os.path.join(datasetFolder, outputName + ".txt")
 
     generatePairsDataset(outputPath)

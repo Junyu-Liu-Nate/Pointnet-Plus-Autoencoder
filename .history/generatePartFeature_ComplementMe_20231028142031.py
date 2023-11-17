@@ -7,6 +7,7 @@ from models.pointnet2_cls_ssg import get_model
 from customized_inference import preProcessPC, inferenceBatch, preProcessPC_nonormalize
 from fileIO import read_obj_vertices
 
+# BASE_DATA_PATH = "/Users/liujunyu/Data/Research/BVC/ITSS/"
 DATASET_PATH = "/Volumes/DataSSDLJY/Data/Research/dataset/"
 PROJECT_PATH = "/Volumes/DataSSDLJY/Data/Research/project/BVC/ITSS/"
 
@@ -15,14 +16,10 @@ def generatePartFeatures(model, pcDataPath, instanceName, partNames, saveFolder)
     for partName in partNames:
         partPath = os.path.join(pcDataPath, instanceName, partName)
         partVertices = read_obj_vertices(partPath)
-        if len(partVertices) == 0:
-            continue # Remove empty part
         partVertices = np.array(partVertices)
         # partProcessed = preProcessPC(partVertices)
         partProcessed = preProcessPC_nonormalize(partVertices)
         partPCs.append(partProcessed)
-    if len(partPCs) == 0:
-        return
     partPCs = np.array(partPCs)
 
     featureArray = inferenceBatch(model, partPCs)
@@ -51,12 +48,12 @@ def main():
     datasetType = "parts"
     category = "Airplane"
     # dataType = "part_all_centered_point_clouds"
-    dataType = "part_all_original_decompose_resample_point_clouds_v3"
+    dataType = "part_all_original_decompose_point_clouds"
     pcDataPath = os.path.join(dataset, datasetType, category, dataType)
 
     #%%
     # saveFolderName = "part_all_centered_features"
-    saveFolderName = "part_all_decompose_resample_features_v3"
+    saveFolderName = "part_all_decompose_features_nonormalize"
     saveFolder = os.path.join(dataset, datasetType, category, saveFolderName)
 
     #%% Generate and save PointNet features
@@ -65,7 +62,6 @@ def main():
         print(f"Start generating features for shape {instanceName}")
         instanceFolder = os.path.join(pcDataPath, instanceName)
         # partNames = [f for f in os.listdir(instanceFolder) if os.path.isfile(os.path.join(instanceFolder, f))]
-        partNames = [f for f in os.listdir(instanceFolder) if os.path.isfile(os.path.join(instanceFolder, f)) and not f.startswith("._")]
 
         generatePartFeatures(model, pcDataPath, instanceName, partNames, saveFolder)
 

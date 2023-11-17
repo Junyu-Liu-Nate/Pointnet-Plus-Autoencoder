@@ -63,7 +63,7 @@ def preProcessPC(pc):
     pcNormalized = pc_normalize(pcSampled)
     return pcNormalized
 
-def preProcessPC_nonormalize(pc):
+def preProcessPC(pc):
     """
     Input: 
         pc: vertices
@@ -72,7 +72,7 @@ def preProcessPC_nonormalize(pc):
     """
     npoint = 1024
     pcSampled = farthest_point_sample(pc, npoint)
-    pcNormalized = pc_normalize_nonormalize(pcSampled)
+    pcNormalized = pc_normalize(pcSampled)
     return pcNormalized
 
 

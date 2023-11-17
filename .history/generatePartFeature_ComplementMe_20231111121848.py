@@ -56,7 +56,7 @@ def main():
 
     #%%
     # saveFolderName = "part_all_centered_features"
-    saveFolderName = "part_all_decompose_resample_features_v3"
+    saveFolderName = "part_all_decompose_resample_features"
     saveFolder = os.path.join(dataset, datasetType, category, saveFolderName)
 
     #%% Generate and save PointNet features

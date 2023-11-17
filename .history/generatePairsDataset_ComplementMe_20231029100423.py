@@ -15,7 +15,7 @@ def generatePairsDataset(outputPath):
     datasetTypes = ["parts"]
     category = "Airplane"
     # dataTypes = ["component_all_centered_features", "part_all_centered_features"]
-    dataTypes = ["part_all_decompose_resample_features_v3"]
+    dataTypes = ["part_all_decompose_features"]
     
     for idx in range(len(datasetTypes)):
         ### Load ShapeNet v2 ComplementMe portion whole shape features (non-stacked!)
@@ -38,7 +38,7 @@ def generatePairsDataset(outputPath):
         neg_pair_counter = 0
         for instanceName in instanceNames:
             if not instanceName in selectedWholeNames:
-                continue
+                
             exact_feature = wholeFeaturesDict[instanceName]
 
             instanceFolder = os.path.join(featureDataPath, instanceName)
@@ -105,7 +105,7 @@ def get_all_pointnet_features(selectedWholeNames):
 
 def main():
     datasetFolder = os.path.join(PROJECT_PATH, "generated")
-    outputName = "pairs_ComplementMe_airplane_decompose_resample_exact_oct_train_v3"
+    outputName = "pairs_ComplementMe_airplane_decompose_exact_oct_train_v2"
     outputPath = os.path.join(datasetFolder, outputName + ".txt")
 
     generatePairsDataset(outputPath)

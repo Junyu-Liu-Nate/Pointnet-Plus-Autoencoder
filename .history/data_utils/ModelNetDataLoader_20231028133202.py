@@ -21,9 +21,11 @@ def pc_normalize(pc):
     pc = pc / m
     return pc
 
-def pc_normalize_nonormalize(pc):
+def pc_normalize_nonormlize(pc):
     centroid = np.mean(pc, axis=0)
     pc = pc - centroid
+    m = np.max(np.sqrt(np.sum(pc**2, axis=1)))
+    pc = pc / m
     return pc
 
 

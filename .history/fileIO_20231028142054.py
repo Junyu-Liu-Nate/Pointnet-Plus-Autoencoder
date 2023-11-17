@@ -97,7 +97,7 @@ def readSelectedMD5s_component(filename):
 def readSelectedMD5s_part(file_path):
     with open(file_path, 'r') as file:
         lines = file.readlines()
-        md5s = [line.split(',')[0].strip() for line in lines[1:]]  # skip the header
+        md5s = [line.split(',')[0] for line in lines[1:]]  # skip the header
         return list(set(md5s))  # remove duplicates
 
 #%% For generating pairs dataset

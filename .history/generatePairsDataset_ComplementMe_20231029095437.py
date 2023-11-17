@@ -15,7 +15,7 @@ def generatePairsDataset(outputPath):
     datasetTypes = ["parts"]
     category = "Airplane"
     # dataTypes = ["component_all_centered_features", "part_all_centered_features"]
-    dataTypes = ["part_all_decompose_resample_features_v3"]
+    dataTypes = ["part_all_decompose_features"]
     
     for idx in range(len(datasetTypes)):
         ### Load ShapeNet v2 ComplementMe portion whole shape features (non-stacked!)
@@ -25,7 +25,7 @@ def generatePairsDataset(outputPath):
         # else:
         #     selectedNamePath = os.path.join(DATASET_PATH, "dataset", "ComplementMe", datasetTypes[idx], "Airplane", "part_all_part_labels.txt")
         #     selectedWholeNames = readSelectedMD5s_part(selectedNamePath)
-        selectedNamePath = os.path.join(DATASET_PATH, "ComplementMe", datasetTypes[idx], "Airplane", "part_names_train.txt")
+        selectedNamePath = os.path.join(DATASET_PATH, "ComplementMe", datasetTypes[idx], "Airplane", "part_train_labels.txt")
         selectedWholeNames = readSelectedMD5s_part(selectedNamePath)
         
         wholeFeaturesDict = get_all_pointnet_features(selectedWholeNames) # This is non-stacked feature
@@ -37,13 +37,10 @@ def generatePairsDataset(outputPath):
         pos_pair_counter = 0
         neg_pair_counter = 0
         for instanceName in instanceNames:
-            if not instanceName in selectedWholeNames:
-                continue
             exact_feature = wholeFeaturesDict[instanceName]
 
             instanceFolder = os.path.join(featureDataPath, instanceName)
-            # partNames = [f for f in os.listdir(instanceFolder) if os.path.isfile(os.path.join(instanceFolder, f))]
-            partNames = [f for f in os.listdir(instanceFolder) if os.path.isfile(os.path.join(instanceFolder, f)) and not f.startswith("._")]
+            partNames = [f for f in os.listdir(instanceFolder) if os.path.isfile(os.path.join(instanceFolder, f))]
 
             for partName in partNames:
                 partFeature = np.load(os.path.join(instanceFolder, partName))
@@ -105,7 +102,7 @@ def get_all_pointnet_features(selectedWholeNames):
 
 def main():
     datasetFolder = os.path.join(PROJECT_PATH, "generated")
-    outputName = "pairs_ComplementMe_airplane_decompose_resample_exact_oct_train_v3"
+    outputName = "pairs_ComplementMe_airplane_decompose_exact_oct_train_"
     outputPath = os.path.join(datasetFolder, outputName + ".txt")
 
     generatePairsDataset(outputPath)

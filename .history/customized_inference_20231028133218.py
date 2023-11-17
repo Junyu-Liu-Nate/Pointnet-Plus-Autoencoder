@@ -63,18 +63,6 @@ def preProcessPC(pc):
     pcNormalized = pc_normalize(pcSampled)
     return pcNormalized
 
-def preProcessPC_nonormalize(pc):
-    """
-    Input: 
-        pc: vertices
-    Output:
-
-    """
-    npoint = 1024
-    pcSampled = farthest_point_sample(pc, npoint)
-    pcNormalized = pc_normalize_nonormalize(pcSampled)
-    return pcNormalized
-
 
 #%% Model inference
 # def inferenceFeature(model, meshFilePath):    

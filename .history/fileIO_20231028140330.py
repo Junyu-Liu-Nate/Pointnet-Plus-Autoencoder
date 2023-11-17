@@ -1,6 +1,7 @@
 import numpy as np
 import os
-import chardet
+pip install chardet
+
 
 def load_mesh(mesh_path):
     """
@@ -49,11 +50,11 @@ def saveWholeFeature(feature, file_path):
 def read_obj_vertices(obj_path):
     vertices = []
 
-    # with open(obj_path, 'rb') as f:
-    #     result = chardet.detect(f.read())
-    # encoding = result['encoding']
+    with open(obj_path, 'rb') as f:
+        result = chardet.detect(f.read())
+    encoding = result['encoding']
     
-    with open(obj_path, 'r') as file:
+    with open(obj_path, 'r', encoding=encoding) as file:
         for line in file:
             # Check for a vertex line
             if line.startswith('v '):
@@ -97,7 +98,7 @@ def readSelectedMD5s_component(filename):
 def readSelectedMD5s_part(file_path):
     with open(file_path, 'r') as file:
         lines = file.readlines()
-        md5s = [line.split(',')[0].strip() for line in lines[1:]]  # skip the header
+        md5s = [line.split(',')[0] for line in lines[1:]]  # skip the header
         return list(set(md5s))  # remove duplicates
 
 #%% For generating pairs dataset
