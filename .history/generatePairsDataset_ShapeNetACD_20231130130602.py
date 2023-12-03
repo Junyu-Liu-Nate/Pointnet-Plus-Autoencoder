@@ -10,23 +10,18 @@ DATASET_PATH = "/Volumes/DataSSDLJY/Data/Research/dataset/"
 PROJECT_PATH = "/Volumes/DataSSDLJY/Data/Research/project/BVC/ITSS/"
 
 def generatePairsDataset(outputPath):
-    dataset = os.path.join(PROJECT_PATH, "generated", "ShapeNet", "ShapeNet_SHRED_features")
+    dataset = os.path.join(PROJECT_PATH, "generated", "ShapeNet_SHRED_features")
     category = "02691156"
-    
-    featureDataPath = os.path.join(dataset, category)
     
     selectedNamePath = os.path.join(PROJECT_PATH, "generated", "Spaghetti", "plane_names_train.txt")
     selectedWholeNames = readSelectedMD5s_part(selectedNamePath)
 
-    existNames = [d for d in os.listdir(featureDataPath) if os.path.isdir(os.path.join(featureDataPath, d))]
-    existSelectedWholeNames = []
-    for selectedWholeName in selectedWholeNames:
-        if selectedWholeName in existNames:
-            existSelectedWholeNames.append(selectedWholeName)
-    selectedWholeNames = existSelectedWholeNames
+    
     
     wholeFeaturesDict = get_all_pointnet_features(selectedWholeNames) # This is non-stacked feature
     print("Finish loading features for ShapeNet whole shapes.")
+
+    featureDataPath = os.path.join(dataset, category)
 
     selectedWholeNames = tqdm(selectedWholeNames)
 
@@ -38,8 +33,6 @@ def generatePairsDataset(outputPath):
         exact_feature = wholeFeaturesDict[instanceName]
 
         instanceFolder = os.path.join(featureDataPath, instanceName)
-        if not os.path.isdir(instanceFolder):
-            continue
         partNames = [f for f in os.listdir(instanceFolder) if os.path.isfile(os.path.join(instanceFolder, f)) and not f.startswith("._")]
 
         for partName in partNames:
@@ -92,7 +85,7 @@ def find_negative_pointnet_neighors(exact_feature, all_whole_features, num_neigh
     return top_k_mesh_paths
 
 def get_all_pointnet_features(selectedWholeNames):
-    featureDataPath = os.path.join(PROJECT_PATH, "generated", "ShapeNet", "pointnet2_airplane_ShapeNetv2.txt")
+    featureDataPath = os.path.join(PROJECT_PATH, "generated", "pointnet2_airplane_ShapeNetv2.txt")
     features = read_features_from_txt_shapenet(featureDataPath, selectedWholeNames)
     return features
 

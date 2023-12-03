@@ -23,7 +23,7 @@ def generatePairsDataset(outputPath):
     for selectedWholeName in selectedWholeNames:
         if selectedWholeName in existNames:
             existSelectedWholeNames.append(selectedWholeName)
-    selectedWholeNames = existSelectedWholeNames
+    selectedWholeNames = 
     
     wholeFeaturesDict = get_all_pointnet_features(selectedWholeNames) # This is non-stacked feature
     print("Finish loading features for ShapeNet whole shapes.")

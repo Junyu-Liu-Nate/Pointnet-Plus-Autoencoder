@@ -19,11 +19,11 @@ def generatePairsDataset(outputPath):
     selectedWholeNames = readSelectedMD5s_part(selectedNamePath)
 
     existNames = [d for d in os.listdir(featureDataPath) if os.path.isdir(os.path.join(featureDataPath, d))]
-    existSelectedWholeNames = []
+    existWho
     for selectedWholeName in selectedWholeNames:
-        if selectedWholeName in existNames:
-            existSelectedWholeNames.append(selectedWholeName)
-    selectedWholeNames = existSelectedWholeNames
+        if not selectedWholeName in existNames:
+            selectedWholeNames.remove(selectedWholeName)
+    print(len(selectedWholeNames))
     
     wholeFeaturesDict = get_all_pointnet_features(selectedWholeNames) # This is non-stacked feature
     print("Finish loading features for ShapeNet whole shapes.")

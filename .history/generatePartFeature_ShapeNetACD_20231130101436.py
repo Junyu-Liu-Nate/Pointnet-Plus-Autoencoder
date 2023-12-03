@@ -55,7 +55,7 @@ def main():
 
     #%%
     saveFolderName = "ShapeNet_SHRED_features" # ShapeNet_ACD_16_features
-    saveFolder = os.path.join(dataset, saveFolderName)
+    saveFolder = os.path.join(dataset, datasetType, category, saveFolderName)
 
     #%% Generate and save PointNet features
     instanceNames = [d for d in os.listdir(pcDataPath) if os.path.isdir(os.path.join(pcDataPath, d))]

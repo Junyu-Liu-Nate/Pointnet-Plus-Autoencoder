@@ -13,20 +13,18 @@ def generatePairsDataset(outputPath):
     dataset = os.path.join(PROJECT_PATH, "generated", "ShapeNet", "ShapeNet_SHRED_features")
     category = "02691156"
     
-    featureDataPath = os.path.join(dataset, category)
-    
     selectedNamePath = os.path.join(PROJECT_PATH, "generated", "Spaghetti", "plane_names_train.txt")
     selectedWholeNames = readSelectedMD5s_part(selectedNamePath)
 
-    existNames = [d for d in os.listdir(featureDataPath) if os.path.isdir(os.path.join(featureDataPath, d))]
-    existSelectedWholeNames = []
+    existNames = [d for d in os.listdir(os.path.join(dataset, category, d)) if os.path.isdir(os.path.join(dataset, category, d))]
     for selectedWholeName in selectedWholeNames:
-        if selectedWholeName in existNames:
-            existSelectedWholeNames.append(selectedWholeName)
-    selectedWholeNames = existSelectedWholeNames
+        if not selectedWholeName in existNames:
+            selectedWholeNames.remove(selectedWholeName)
     
     wholeFeaturesDict = get_all_pointnet_features(selectedWholeNames) # This is non-stacked feature
     print("Finish loading features for ShapeNet whole shapes.")
+
+    featureDataPath = os.path.join(dataset, category)
 
     selectedWholeNames = tqdm(selectedWholeNames)
 
@@ -38,8 +36,6 @@ def generatePairsDataset(outputPath):
         exact_feature = wholeFeaturesDict[instanceName]
 
         instanceFolder = os.path.join(featureDataPath, instanceName)
-        if not os.path.isdir(instanceFolder):
-            continue
         partNames = [f for f in os.listdir(instanceFolder) if os.path.isfile(os.path.join(instanceFolder, f)) and not f.startswith("._")]
 
         for partName in partNames:
