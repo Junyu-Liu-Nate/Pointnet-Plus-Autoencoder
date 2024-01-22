@@ -10,12 +10,12 @@ DATASET_PATH = "/Volumes/DataSSDLJY/Data/Research/dataset/"
 PROJECT_PATH = "/Volumes/DataSSDLJY/Data/Research/project/BVC/ITSS/"
 
 def generatePairsDataset(outputPath):
-    dataset = os.path.join(PROJECT_PATH, "generated", "ShapeNet", "ShapeNet_ACD_8_features_normalize")
-    category = "03001627"
+    dataset = os.path.join(PROJECT_PATH, "generated", "ShapeNet", "ShapeNetv2_Wholes_ellipsoid_100_features")
+    category = "02691156"
     
     featureDataPath = os.path.join(dataset, category)
     
-    selectedNamePath = os.path.join(PROJECT_PATH, "generated", "Spaghetti", "chair_names_all.txt")
+    selectedNamePath = os.path.join(PROJECT_PATH, "generated", "Spaghetti", "plane_names_all.txt")
     selectedWholeNames = readSelectedMD5s_part(selectedNamePath)
 
     existNames = [d for d in os.listdir(featureDataPath) if os.path.isdir(os.path.join(featureDataPath, d))]
@@ -45,8 +45,9 @@ def generatePairsDataset(outputPath):
         for partName in partNames:
             partFeature = np.load(os.path.join(instanceFolder, partName))
 
-            posShapeIdxs = [instanceName]
             num_neighbor = 1
+            posShapeIdxs = [instanceName]
+            # posShapeIdxs = find_positive_pointnet_neighors(exact_feature, wholeFeaturesDict, num_neighbor)
             negShapeIdxs = find_negative_pointnet_neighors(exact_feature, wholeFeaturesDict, num_neighbor)
             # print(f"    Positive index: {posShapeIdxs}")
             # print(f"    Negative index: {negShapeIdxs}")
@@ -71,6 +72,15 @@ def generatePairsDataset(outputPath):
                 neg_pair_counter += 1
         
         # print(f'Finish shape idx: {instanceName}\n')
+                
+def find_positive_pointnet_neighors(exact_feature, all_whole_features, num_neighbor):
+    distances = {}
+    for mesh_path, whole_feature in all_whole_features.items():
+        distance = np.linalg.norm(exact_feature - whole_feature)
+        distances[mesh_path] = distance
+    sorted_mesh_paths = sorted(distances, key=distances.get, reverse=False)
+
+    return sorted_mesh_paths[:num_neighbor]
 
 def find_negative_pointnet_neighors(exact_feature, all_whole_features, num_neighbor):
     distances = {}
@@ -92,14 +102,18 @@ def find_negative_pointnet_neighors(exact_feature, all_whole_features, num_neigh
     return top_k_mesh_paths
 
 def get_all_pointnet_features(selectedWholeNames):
-    featureDataPath = os.path.join(PROJECT_PATH, "generated", "ShapeNet", "pointnet2_chair_ShapeNetv2.txt")
+    featureDataPath = os.path.join(PROJECT_PATH, "generated", "ShapeNet", "pointnet2_airplane_ShapeNetv2.txt")
     features = read_features_from_txt_shapenet(featureDataPath, selectedWholeNames)
+
+    # featureDataPath = os.path.join(PROJECT_PATH, "generated", "Spaghetti", "spaghetti_id_to_pointnet_feat.npz")
+    # features = np.load(featureDataPath)
+
     return features
 
 
 def main():
     datasetFolder = os.path.join(PROJECT_PATH, "generated", "Spaghetti")
-    outputName = "pairs_chairs_ACD8_exact_oct_all_normalize"
+    outputName = "pairs_airplane_ellipsoid_FPS100_exact_oct_all"
     outputPath = os.path.join(datasetFolder, outputName + ".txt")
 
     generatePairsDataset(outputPath)

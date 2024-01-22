@@ -3,7 +3,7 @@ import numpy as np
 import os
 
 # from pointnet_pytorch.pointnet.model import PointNetCls
-from models.pointnet2_cls_ssg import get_model
+from models.pointnet2_cls_ssg_original import get_model
 # from models.pointnet2_cls_msg import get_model
 from data_utils.ModelNetDataLoader import pc_normalize, farthest_point_sample, pc_normalize_nonormalize
 from fileIO import read_obj_vertices
@@ -54,14 +54,14 @@ def read_features_from_txt(filename):
     return [feature for _, feature in mesh_features]
 
 #%% Data processing functions
-def preProcessPC(pc):
+def preProcessPC(npoint, pc):
     """
     Input: 
         pc: vertices
     Output:
 
     """
-    npoint = 1024
+    # npoint = 4096
     pcSampled = farthest_point_sample(pc, npoint)
     pcNormalized = pc_normalize(pcSampled)
     return pcNormalized
@@ -101,6 +101,24 @@ def inferenceBatch(model, pcArray):
         # print(output, trans, trans_feat)
 
     return output.numpy()
+
+def inferenceBatchAutoencoder(model, pcArray):   
+    pcTensor = torch.tensor(pcArray, dtype=torch.float32).permute(0, 2, 1)
+
+    # Perform inference
+    with torch.no_grad():
+        x, latent_feats = model(pcTensor)
+
+    return latent_feats.numpy()
+
+def inferenceBatchReconstructAutoencoder(model, pcArray):   
+    pcTensor = torch.tensor(pcArray, dtype=torch.float32).permute(0, 2, 1)
+
+    # Perform inference
+    with torch.no_grad():
+        x, latent_feats = model(pcTensor)
+
+    return x.numpy()
 
 #%% Main
 # def main():

@@ -3,9 +3,8 @@ import numpy as np
 import random
 
 from generateWholeFeatures_ModelNet40 import computeWholeFeature
-from fileIO import read_features_from_txt_shapenet, readSelectedMD5s_component, readSelectedMD5s_part, add_pair_to_existing_txt
+from fileIO import read_features_from_txt_shapenet, readSelectedMD5s_component, readSelectedMD5s_part, add_pair_to_existing_txt, get_names_from_json
 
-# BASE_DATA_PATH = "/Users/liujunyu/Data/Research/BVC/ITSS/"
 DATASET_PATH = "/Volumes/DataSSDLJY/Data/Research/dataset/"
 PROJECT_PATH = "/Volumes/DataSSDLJY/Data/Research/project/BVC/ITSS/"
 
@@ -13,9 +12,9 @@ def generatePairsDataset(outputPath):
     dataset = os.path.join(DATASET_PATH, "ComplementMe")
     # datasetTypes = ["components", "parts"]
     datasetTypes = ["parts"]
-    category = "Chair"
+    category = "Airplane"
     # dataTypes = ["component_all_centered_features", "part_all_centered_features"]
-    dataTypes = ["part_all_decompose_features"]
+    dataTypes = ["part_all_decompose_resample_features_v3_autoencoder"]
     
     for idx in range(len(datasetTypes)):
         ### Load ShapeNet v2 ComplementMe portion whole shape features (non-stacked!)
@@ -25,7 +24,7 @@ def generatePairsDataset(outputPath):
         # else:
         #     selectedNamePath = os.path.join(DATASET_PATH, "dataset", "ComplementMe", datasetTypes[idx], "Airplane", "part_all_part_labels.txt")
         #     selectedWholeNames = readSelectedMD5s_part(selectedNamePath)
-        selectedNamePath = os.path.join(DATASET_PATH, "ComplementMe", datasetTypes[idx], category, "part_all_names.txt")
+        selectedNamePath = os.path.join(DATASET_PATH, "ComplementMe", datasetTypes[idx], category, "part_all_names_SPAGHETTI.txt")
         selectedWholeNames = readSelectedMD5s_part(selectedNamePath)
         
         wholeFeaturesDict = get_all_pointnet_features(selectedWholeNames) # This is non-stacked feature
@@ -44,17 +43,17 @@ def generatePairsDataset(outputPath):
             exact_feature = wholeFeaturesDict[instanceName]
 
             instanceFolder = os.path.join(featureDataPath, instanceName)
-            # partNames = [f for f in os.listdir(instanceFolder) if os.path.isfile(os.path.join(instanceFolder, f))]
             partNames = [f for f in os.listdir(instanceFolder) if os.path.isfile(os.path.join(instanceFolder, f)) and not f.startswith("._")]
 
             for partName in partNames:
                 partFeature = np.load(os.path.join(instanceFolder, partName))
 
-                posShapeIdxs = [instanceName]
                 num_neighbor = 1
+                posShapeIdxs = [instanceName]
+                # posShapeIdxs = find_positive_pointnet_neighors(exact_feature, wholeFeaturesDict, num_neighbor)
                 negShapeIdxs = find_negative_pointnet_neighors(exact_feature, wholeFeaturesDict, num_neighbor)
-                print(f"    Positive index: {posShapeIdxs}")
-                print(f"    Negative index: {negShapeIdxs}")
+                # print(f"    Positive index: {posShapeIdxs}")
+                # print(f"    Negative index: {negShapeIdxs}")
 
                 for posShapeIdx in posShapeIdxs:
                     pair = {
@@ -77,6 +76,15 @@ def generatePairsDataset(outputPath):
             
             print(f'Finish shape idx: {instanceName}\n')
 
+def find_positive_pointnet_neighors(exact_feature, all_whole_features, num_neighbor):
+    distances = {}
+    for mesh_path, whole_feature in all_whole_features.items():
+        distance = np.linalg.norm(exact_feature - whole_feature)
+        distances[mesh_path] = distance
+    sorted_mesh_paths = sorted(distances, key=distances.get, reverse=False)
+
+    return sorted_mesh_paths[:num_neighbor]
+
 def find_negative_pointnet_neighors(exact_feature, all_whole_features, num_neighbor):
     distances = {}
     for mesh_path, whole_feature in all_whole_features.items():
@@ -98,8 +106,19 @@ def find_negative_pointnet_neighors(exact_feature, all_whole_features, num_neigh
 
 def get_all_pointnet_features(selectedWholeNames):
     # featureDataPath = "/Users/liujunyu/Data/Research/BVC/ITSS/dataset/" + "pointnet2_airplane_ShapeNetv2.txt"
-    featureDataPath = os.path.join(PROJECT_PATH, "generated", "ShapeNet", "pointnet2_chair_ShapeNetv2.txt")
-    features = read_features_from_txt_shapenet(featureDataPath, selectedWholeNames)
+    
+    # featureDataPath = os.path.join(PROJECT_PATH, "generated", "ShapeNet", "pointnet2_chair_ShapeNetv2.txt")
+    # features = read_features_from_txt_shapenet(featureDataPath, selectedWholeNames)
+
+    # featureDataPath = os.path.join(PROJECT_PATH, "generated", "Spaghetti", "spaghetti_id_to_pointnet_feat.npz")
+    # features = np.load(featureDataPath)
+
+    keyFile = os.path.join(PROJECT_PATH, "generated", "Spaghetti", "spaghetti_airplanes_train.json")
+    featureFile = os.path.join(PROJECT_PATH, "generated", "Spaghetti", "spaghetti_gt_plane_feats.npy")
+    keys = get_names_from_json(keyFile, "02691156")
+    values = np.load(featureFile)
+    features = {key: value for key, value in zip(keys, values)}
+
     return features
 
 
@@ -109,7 +128,7 @@ def main():
     # datasetFolder = os.path.join(PROJECT_PATH, "generated")
     # outputName = "pairs_ComplementMe_airplane_decompose_resample_exact_oct_train_v3"
     datasetFolder = os.path.join(PROJECT_PATH, "generated", "ComplementMe")
-    outputName = "pairs_chair_ComplementMe_exact_oct_train"
+    outputName = "pairs_airplane_ComplementMe_decompose_resample_autoencoder_exact_oct_no_aug"
     outputPath = os.path.join(datasetFolder, outputName + ".txt")
 
     generatePairsDataset(outputPath)

@@ -4,7 +4,7 @@ import torch
 import os
 from tqdm import tqdm
 
-from models.pointnet2_cls_ssg import get_model
+from models.pointnet2_cls_ssg_original import get_model
 from data_utils.ModelNetDataLoader import pc_normalize, farthest_point_sample
 from customized_inference import preProcessPC, inferenceBatch
 from geometry import sampleFromMesh, fpsSample, is_inside_sphere, scale_to_unit_sphere
@@ -55,7 +55,7 @@ def computeWholeFeature(outputName, objectName, wholeIdx, model, wholeVertices, 
                     partVertices.append(wholeVertices[i])
 
         partVertices = np.array(partVertices)
-        partProcessed = preProcessPC(partVertices)
+        partProcessed = preProcessPC(1024, partVertices)
         partPCs.append(partProcessed)
 
         # visualizeBaseFolder = os.path.join("/Users/liujunyu/Data/Research/BVC/ITSS/visualize/", outputName)
@@ -145,13 +145,14 @@ def main():
     #     pcPaths.append(pcPath)
 
     ### For ShapeNet
-    pcDatasetPath = os.path.join(PROJECT_PATH, "generated", "ShapeNet", "ShapeNetCore_v2_PC", "03001627")
+    pcDatasetPath = os.path.join(PROJECT_PATH, "generated", "ShapeNet", "ShapeNetCore_v2_PC", "02691156")
     # pcNames = [f for f in os.listdir(pcDatasetPath) if os.path.isfile(os.path.join(pcDatasetPath, f))]
-    spaghettiNamePath = os.path.join(PROJECT_PATH, "generated", "Spaghetti", "shapenet_chairs_train.json")
-    pcNamesPure = get_names_from_json(spaghettiNamePath, "03001627")
+    spaghettiNamePath = os.path.join(PROJECT_PATH, "generated", "Spaghetti", "spaghetti_airplanes_train.json")
+    pcNamesPure = get_names_from_json(spaghettiNamePath, "02691156")
     pcNames = []
     for pcNamePure in pcNamesPure:
         pcNames.append(pcNamePure + ".obj")
+    print(len(pcNames))
     
     pcPaths = []
     for pcName in pcNames:
@@ -160,7 +161,7 @@ def main():
 
     outputFolder = os.path.join(PROJECT_PATH, "generated", "ShapeNet")
     outputName = "ShapeNetv2_Wholes_ellipsoid_100"
-    objectName = "03001627"
+    objectName = "02691156"
     outputPath = os.path.join(outputFolder, outputName, objectName)
     if not os.path.exists(outputPath):
         os.makedirs(outputPath)
@@ -180,7 +181,7 @@ def main():
         # savePath = os.path.join(outputPath, pcNames[i][:-4])
         saveWholeFeature(wholeFeature, savePath)
 
-        print(f"Finish generating whole feature for idx: {pcNames[i][:-4]}.")
+        print(f"[{i}/{len(pcPaths)}] Finish generating whole feature for idx: {pcNames[i][:-4]}.")
 
 
 if __name__ == '__main__':

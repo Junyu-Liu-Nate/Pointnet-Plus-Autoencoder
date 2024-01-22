@@ -3,7 +3,7 @@ import numpy as np
 import torch
 import os
 
-from models.pointnet2_cls_ssg import get_model
+from models.pointnet2_cls_ssg_original import get_model
 from customized_inference import preProcessPC, inferenceBatch, preProcessPC_nonormalize
 from fileIO import read_obj_vertices
 

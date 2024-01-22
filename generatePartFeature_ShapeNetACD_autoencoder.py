@@ -4,8 +4,8 @@ import torch
 import os
 from tqdm import tqdm
 
-from models.pointnet2_cls_ssg_original import get_model
-from customized_inference import preProcessPC, inferenceBatch, preProcessPC_nonormalize
+from models.pointnet2_cls_ssg import get_model
+from customized_inference import preProcessPC, inferenceBatchAutoencoder, inferenceBatch, preProcessPC_nonormalize
 from fileIO import read_obj_vertices
 
 DATASET_PATH = "/Volumes/DataSSDLJY/Data/Research/dataset/"
@@ -19,14 +19,14 @@ def generatePartFeatures(model, pcDataPath, instanceName, partNames, saveFolder)
         if len(partVertices) == 0:
             continue # Remove empty part
         partVertices = np.array(partVertices)
-        partProcessed = preProcessPC(1024, partVertices)
+        partProcessed = preProcessPC(4096, partVertices)
         # partProcessed = preProcessPC_nonormalize(partVertices)
         partPCs.append(partProcessed)
     if len(partPCs) == 0:
         return
     partPCs = np.array(partPCs)
 
-    featureArray = inferenceBatch(model, partPCs)
+    featureArray = inferenceBatchAutoencoder(model, partPCs)
 
     for partIdx in range(len(featureArray)):
         saveInstancePath = os.path.join(saveFolder, instanceName)
@@ -38,23 +38,24 @@ def generatePartFeatures(model, pcDataPath, instanceName, partNames, saveFolder)
 
 def main():
     #%% Load PointNet model
-    modelPath = 'log/classification/pointnet2_ssg_wo_normals/checkpoints/best_model.pth'
+    # modelPath = 'log/classification/pointnet2_ssg_wo_normals/checkpoints/best_model.pth'
+    modelPath = 'log/reconstruction/4k_pts_48batch/checkpoints/best_model.pth'
     print("Model loaded.")
     # Initialize the model and load the trained weights
-    model = get_model(40, False)
+    model = get_model(4096, -1, False)
     loaded_dict = torch.load(modelPath, map_location=torch.device('cpu'))
     model_state_dict = loaded_dict['model_state_dict']
     model.load_state_dict(model_state_dict)
     model.eval()
 
-    #%% ShapeNet ACD / PartNet Dataset
+    #%% ShapeNet ACD Dataset
     dataset = os.path.join(PROJECT_PATH, "generated", "ShapeNet")
-    datasetType = "ShapeNetv2_Wholes_ellipsoid_100_PC" # ShapeNet_ACD_16
+    datasetType = "ShapeNet_ACD_16" # ShapeNet_ACD_16
     category = "02691156"
     pcDataPath = os.path.join(dataset, datasetType, category)
 
     #%%
-    saveFolderName = "ShapeNetv2_Wholes_ellipsoid_100_features" # ShapeNet_ACD_16_features
+    saveFolderName = "ShapeNet_ACD_16_features_normalize_autoencoder" # ShapeNet_ACD_16_features
     saveFolder = os.path.join(dataset, saveFolderName, "02691156")
 
     #%% Generate and save PointNet features

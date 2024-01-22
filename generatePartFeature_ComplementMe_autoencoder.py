@@ -4,8 +4,8 @@ import torch
 import os
 from tqdm import tqdm
 
-from models.pointnet2_cls_ssg_original import get_model
-from customized_inference import preProcessPC, inferenceBatch, preProcessPC_nonormalize
+from models.pointnet2_cls_ssg import get_model
+from customized_inference import preProcessPC, inferenceBatchAutoencoder
 from fileIO import read_obj_vertices
 
 DATASET_PATH = "/Volumes/DataSSDLJY/Data/Research/dataset/"
@@ -19,14 +19,14 @@ def generatePartFeatures(model, pcDataPath, instanceName, partNames, saveFolder)
         if len(partVertices) == 0:
             continue # Remove empty part
         partVertices = np.array(partVertices)
-        partProcessed = preProcessPC(1024, partVertices)
+        partProcessed = preProcessPC(2048, partVertices)
         # partProcessed = preProcessPC_nonormalize(partVertices)
         partPCs.append(partProcessed)
     if len(partPCs) == 0:
         return
     partPCs = np.array(partPCs)
 
-    featureArray = inferenceBatch(model, partPCs)
+    featureArray = inferenceBatchAutoencoder(model, partPCs)
 
     for partIdx in range(len(featureArray)):
         saveInstancePath = os.path.join(saveFolder, instanceName)
@@ -38,38 +38,42 @@ def generatePartFeatures(model, pcDataPath, instanceName, partNames, saveFolder)
 
 def main():
     #%% Load PointNet model
-    modelPath = 'log/classification/pointnet2_ssg_wo_normals/checkpoints/best_model.pth'
+    modelPath = 'log/reconstruction/complementMe_parts_no_aug/checkpoints/best_model.pth'
     print("Model loaded.")
     # Initialize the model and load the trained weights
-    model = get_model(40, False)
+    model = get_model(2048, -1, False)
     loaded_dict = torch.load(modelPath, map_location=torch.device('cpu'))
     model_state_dict = loaded_dict['model_state_dict']
     model.load_state_dict(model_state_dict)
     model.eval()
 
-    #%% ShapeNet ACD / PartNet Dataset
-    dataset = os.path.join(PROJECT_PATH, "generated", "ShapeNet")
-    datasetType = "ShapeNetv2_Wholes_ellipsoid_100_PC" # ShapeNet_ACD_16
-    category = "02691156"
-    pcDataPath = os.path.join(dataset, datasetType, category)
+    #%% ComplementMe Dataset
+    dataset = os.path.join(DATASET_PATH, "ComplementMe")
+    datasetType = "parts"
+    category = "Airplane"
+    # dataType = "part_all_centered_point_clouds"
+    dataType = "part_all_original_decompose_resample_point_clouds_v3"
+    pcDataPath = os.path.join(dataset, datasetType, category, dataType)
 
     #%%
-    saveFolderName = "ShapeNetv2_Wholes_ellipsoid_100_features" # ShapeNet_ACD_16_features
-    saveFolder = os.path.join(dataset, saveFolderName, "02691156")
+    # saveFolderName = "part_all_centered_features"
+    saveFolderName = "part_all_decompose_resample_features_v3_autoencoder"
+    # saveFolder = os.path.join(PROJECT_PATH, "generated", "ComplementMe", "02691156", saveFolderName)
+    saveFolder = os.path.join(dataset, datasetType, category, saveFolderName)
 
     #%% Generate and save PointNet features
     instanceNames = [d for d in os.listdir(pcDataPath) if os.path.isdir(os.path.join(pcDataPath, d))]
     instanceNames = tqdm(instanceNames)
     for instanceName in instanceNames:
-        saveInstancePath = os.path.join(saveFolder, instanceName)
-        if not os.path.exists(saveInstancePath):
-            instanceNames.set_description(f"Start generating features for shape {instanceName}")
-            instanceFolder = os.path.join(pcDataPath, instanceName)
-            partNames = [f for f in os.listdir(instanceFolder) if os.path.isfile(os.path.join(instanceFolder, f)) and not f.startswith("._")]
+        instanceNames.set_description(f"Start generating features for shape {instanceName}")
+        instanceFolder = os.path.join(pcDataPath, instanceName)
+        # partNames = [f for f in os.listdir(instanceFolder) if os.path.isfile(os.path.join(instanceFolder, f))]
+        partNames = [f for f in os.listdir(instanceFolder) if os.path.isfile(os.path.join(instanceFolder, f)) and not f.startswith("._")]
 
-            generatePartFeatures(model, pcDataPath, instanceName, partNames, saveFolder)
-        else:
-            instanceNames.set_description(f"Skip generating features for shape {instanceName}")
+        generatePartFeatures(model, pcDataPath, instanceName, partNames, saveFolder)
+
+        # print(f"Finish generating features for shape {instanceName}")
+
 
 if __name__ == '__main__':
     main()
