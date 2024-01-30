@@ -8,11 +8,23 @@ from models.pointnet2_cls_ssg_original import get_model
 from data_utils.ModelNetDataLoader import pc_normalize, farthest_point_sample
 from customized_inference import preProcessPC, inferenceBatch
 from geometry import sampleFromMesh, fpsSample, is_inside_sphere, scale_to_unit_sphere
-from fileIO import savePCAsObj, saveWholeFeature, read_obj_vertices, get_names_from_json
+from fileIO import savePCAsObj, saveWholeFeature, read_obj_vertices, get_names_from_json, save_parameters
 
-# BASE_DATA_PATH = "/Users/liujunyu/Data/Research/BVC/ITSS/"
 DATASET_PATH = "/Volumes/DataSSDLJY/Data/Research/dataset/"
 PROJECT_PATH = "/Volumes/DataSSDLJY/Data/Research/project/BVC/ITSS/"
+
+PARAMETERS = {
+    "pc_folder": "ShapeNetCore_v2_PC",
+    "category": "03001627",
+
+    "name_select_filename": "shapenet_chairs_train.json",
+    "output_name": "ShapeNetv2_Wholes_ellipsoid_200",
+    
+    "num_parts": 200,
+    "min_radius": 0.08,
+    "max_radius": 0.5,
+    "is_save_pc": False
+}
 
 def is_inside_ellipsoid(point, center, radius_x, radius_y, radius_z):
     """
@@ -28,8 +40,8 @@ def computeWholeFeature(outputName, objectName, wholeIdx, model, wholeVertices, 
     """
     partPCs = []
 
-    min_radius = 0.08
-    max_radius = 0.5
+    min_radius = PARAMETERS["min_radius"]
+    max_radius = PARAMETERS["max_radius"]
 
     centers = fpsSample(wholeVertices, numParts)
 
@@ -58,14 +70,14 @@ def computeWholeFeature(outputName, objectName, wholeIdx, model, wholeVertices, 
         partProcessed = preProcessPC(1024, partVertices)
         partPCs.append(partProcessed)
 
-        # visualizeBaseFolder = os.path.join("/Users/liujunyu/Data/Research/BVC/ITSS/visualize/", outputName)
-        visualizeBaseFolder = os.path.join(PROJECT_PATH, "generated", "ShapeNet", outputName + "_PC", objectName)
-        visualizeFolder = os.path.join(visualizeBaseFolder, str(wholeIdx))
-        if not os.path.exists(visualizeFolder):
-            os.makedirs(visualizeFolder)
-        visualizePath = os.path.join(visualizeFolder, str(idx) + ".obj")
-        # savePCAsObj(partProcessed, visualizePath)
-        savePCAsObj(partVertices, visualizePath)
+        if PARAMETERS["is_save_pc"]:
+            visualizeBaseFolder = os.path.join(PROJECT_PATH, "generated", "ShapeNet", outputName + "_PC", objectName)
+            visualizeFolder = os.path.join(visualizeBaseFolder, str(wholeIdx))
+            if not os.path.exists(visualizeFolder):
+                os.makedirs(visualizeFolder)
+            save_parameters(PARAMETERS, os.path.join(visualizeBaseFolder, "parameters.txt"))
+            visualizePath = os.path.join(visualizeFolder, str(idx) + ".obj")
+            savePCAsObj(partVertices, visualizePath) # This is non-normalized, which preserves the original PC positions
 
     partPCs = np.array(partPCs)
 
@@ -145,10 +157,10 @@ def main():
     #     pcPaths.append(pcPath)
 
     ### For ShapeNet
-    pcDatasetPath = os.path.join(PROJECT_PATH, "generated", "ShapeNet", "ShapeNetCore_v2_PC", "02691156")
+    pcDatasetPath = os.path.join(PROJECT_PATH, "generated", "ShapeNet", PARAMETERS["pc_folder"], PARAMETERS["category"])
     # pcNames = [f for f in os.listdir(pcDatasetPath) if os.path.isfile(os.path.join(pcDatasetPath, f))]
-    spaghettiNamePath = os.path.join(PROJECT_PATH, "generated", "Spaghetti", "spaghetti_airplanes_train.json")
-    pcNamesPure = get_names_from_json(spaghettiNamePath, "02691156")
+    spaghettiNamePath = os.path.join(PROJECT_PATH, "generated", "Spaghetti", PARAMETERS["name_select_filename"])
+    pcNamesPure = get_names_from_json(spaghettiNamePath, PARAMETERS["category"])
     pcNames = []
     for pcNamePure in pcNamesPure:
         pcNames.append(pcNamePure + ".obj")
@@ -160,11 +172,12 @@ def main():
         pcPaths.append(pcPath)
 
     outputFolder = os.path.join(PROJECT_PATH, "generated", "ShapeNet")
-    outputName = "ShapeNetv2_Wholes_ellipsoid_100"
-    objectName = "02691156"
+    outputName = PARAMETERS["output_name"]
+    objectName = "03001627"
     outputPath = os.path.join(outputFolder, outputName, objectName)
     if not os.path.exists(outputPath):
         os.makedirs(outputPath)
+    save_parameters(PARAMETERS, os.path.join(outputPath, "parameters.txt"))
 
     print(len(pcPaths))
     # for i in range(len(meshPaths)):
@@ -175,7 +188,7 @@ def main():
         
         wholeVertices = read_obj_vertices(pcPaths[i])
 
-        numParts = 100
+        numParts = PARAMETERS["num_parts"]
         wholeFeature = computeWholeFeature(outputName, objectName, pcNames[i][:-4], model, wholeVertices, numParts, 1024)
 
         # savePath = os.path.join(outputPath, pcNames[i][:-4])

@@ -48,14 +48,14 @@ def main():
     model.eval()
 
     #%% ShapeNet ACD / PartNet Dataset
-    dataset = os.path.join(PROJECT_PATH, "generated", "ShapeNet")
-    datasetType = "ShapeNetv2_Wholes_ellipsoid_100_PC" # ShapeNet_ACD_16
-    category = "02691156"
+    dataset = os.path.join(PROJECT_PATH, "generated", "PartNet")
+    datasetType = "PartNet_PC_merge_l3" # ShapeNet_ACD_16
+    category = "03001627"
     pcDataPath = os.path.join(dataset, datasetType, category)
 
     #%%
-    saveFolderName = "ShapeNetv2_Wholes_ellipsoid_100_features" # ShapeNet_ACD_16_features
-    saveFolder = os.path.join(dataset, saveFolderName, "02691156")
+    saveFolderName = "PartNet_merge_l3_features" # ShapeNet_ACD_16_features
+    saveFolder = os.path.join(dataset, saveFolderName, "03001627")
 
     #%% Generate and save PointNet features
     instanceNames = [d for d in os.listdir(pcDataPath) if os.path.isdir(os.path.join(pcDataPath, d))]

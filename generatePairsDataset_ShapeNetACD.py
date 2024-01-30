@@ -10,12 +10,12 @@ DATASET_PATH = "/Volumes/DataSSDLJY/Data/Research/dataset/"
 PROJECT_PATH = "/Volumes/DataSSDLJY/Data/Research/project/BVC/ITSS/"
 
 def generatePairsDataset(outputPath):
-    dataset = os.path.join(PROJECT_PATH, "generated", "ShapeNet", "ShapeNetv2_Wholes_ellipsoid_100_features")
-    category = "02691156"
+    dataset = os.path.join(PROJECT_PATH, "generated", "PartNet", "PartNet_merge_l3_features")
+    category = "03001627"
     
     featureDataPath = os.path.join(dataset, category)
     
-    selectedNamePath = os.path.join(PROJECT_PATH, "generated", "Spaghetti", "plane_names_all.txt")
+    selectedNamePath = os.path.join(PROJECT_PATH, "generated", "Spaghetti", "chair_names_all.txt")
     selectedWholeNames = readSelectedMD5s_part(selectedNamePath)
 
     existNames = [d for d in os.listdir(featureDataPath) if os.path.isdir(os.path.join(featureDataPath, d))]
@@ -102,7 +102,7 @@ def find_negative_pointnet_neighors(exact_feature, all_whole_features, num_neigh
     return top_k_mesh_paths
 
 def get_all_pointnet_features(selectedWholeNames):
-    featureDataPath = os.path.join(PROJECT_PATH, "generated", "ShapeNet", "pointnet2_airplane_ShapeNetv2.txt")
+    featureDataPath = os.path.join(PROJECT_PATH, "generated", "ShapeNet", "pointnet2_chair_ShapeNetv2.txt")
     features = read_features_from_txt_shapenet(featureDataPath, selectedWholeNames)
 
     # featureDataPath = os.path.join(PROJECT_PATH, "generated", "Spaghetti", "spaghetti_id_to_pointnet_feat.npz")
@@ -112,8 +112,8 @@ def get_all_pointnet_features(selectedWholeNames):
 
 
 def main():
-    datasetFolder = os.path.join(PROJECT_PATH, "generated", "Spaghetti")
-    outputName = "pairs_airplane_ellipsoid_FPS100_exact_oct_all"
+    datasetFolder = os.path.join(PROJECT_PATH, "generated", "PartNet")
+    outputName = "pairs_chair_PartNet_merge_l3_exact_oct_all_normalize"
     outputPath = os.path.join(datasetFolder, outputName + ".txt")
 
     generatePairsDataset(outputPath)

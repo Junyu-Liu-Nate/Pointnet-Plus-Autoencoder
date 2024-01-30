@@ -124,3 +124,15 @@ def create_initial_txt(file_path):
 
 def add_pair_to_existing_txt(file_path, pair):
     write_pair_to_txt(file_path, pair)
+
+#%% Save parameters
+def save_parameters(params, save_path, format='txt'):
+    if format == 'json':
+        with open(save_path, 'w') as json_file:
+            json.dump(params, json_file, indent=4)
+    elif format == 'txt':
+        with open(save_path, 'w') as txt_file:
+            for key, value in params.items():
+                txt_file.write(f'{key}: {value}\n')
+    else:
+        raise ValueError("Format not supported. Please choose 'txt' or 'json'.")
