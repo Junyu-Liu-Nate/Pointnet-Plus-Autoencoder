@@ -117,3 +117,4 @@ dmypy.json
 .DS_Store
 log/
 *.pth
+data/.DS_Store
