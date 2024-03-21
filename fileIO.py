@@ -2,6 +2,7 @@ import numpy as np
 import os
 import chardet
 import json
+import random
 
 def load_mesh(mesh_path):
     """
@@ -63,6 +64,28 @@ def read_obj_vertices(obj_path):
                 vertices.append(vertex)
 
     return np.array(vertices)
+
+# def read_obj_vertices(obj_path, sampling_rate=0.5):
+#     vertices = []
+
+#     with open(obj_path, 'r') as file:
+#         for line in file:
+#             # Check for a vertex line
+#             if line.startswith('v '):
+#                 # Split the line, convert to float, and ignore the first element ('v')
+#                 vertex = list(map(float, line.split()[1:]))
+#                 vertices.append(vertex)
+
+#     # Convert to numpy array
+#     vertices = np.array(vertices)
+
+#     # Randomly sample points
+#     num_points = len(vertices)
+#     num_sample = int(num_points * sampling_rate)
+#     indices = random.sample(range(num_points), num_sample)
+#     sampled_vertices = vertices[indices]
+
+#     return sampled_vertices
 
 #%% For PointNet features on whole shape (no parts)
 def read_features_from_txt(filename, selectedWholeNames):
