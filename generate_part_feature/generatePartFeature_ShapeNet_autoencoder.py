@@ -53,7 +53,7 @@ def generatePartFeatures(model, pcDataPath, instanceName, partNames, saveFolder)
         saveInstancePath = os.path.join(saveFolder, instanceName)
         if not os.path.exists(saveInstancePath):
             os.makedirs(saveInstancePath)
-        savePath = os.path.join(saveInstancePath, str(partIdx + 1) + ".npy")
+        savePath = os.path.join(saveInstancePath, str(partIdx) + ".npy") ### Index!!!
         np.save(savePath, featureArray[partIdx])
 
 
