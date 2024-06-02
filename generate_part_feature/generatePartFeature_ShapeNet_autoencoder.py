@@ -59,7 +59,7 @@ def generatePartFeatures(model, pcDataPath, instanceName, partNames, saveFolder)
 
 def main():
     #%% Load PointNet model
-    modelPath = 'log/reconstruction/Spaghetti_decomposition/checkpoints/best_model.pth'
+    modelPath = 'log/reconstruction/Spaghetti_decomposition_grouped/checkpoints/best_model.pth'
     print("Model loaded.")
     # Initialize the model and load the trained weights
     model = get_model(2048, -1, False)
@@ -79,13 +79,13 @@ def main():
 
     #%% ShapeNet/Spaghetti Dataset
     dataset = os.path.join(PROJECT_PATH, "generated", "Spaghetti")
-    datasetType = "spaghetti_decomposition_pc_fps2048" # ShapeNet_ACD_16
+    datasetType = "spaghetti_decomposition_grouped_fps2048" # ShapeNet_ACD_16
     category = "02691156"
     # pcDataPath = os.path.join(dataset, datasetType, category)
     pcDataPath = os.path.join(dataset, datasetType)
 
     #%%
-    saveFolderName = "spaghetti_decomposition_features"
+    saveFolderName = "spaghetti_decomposition_grouped_features"
     # saveFolder = os.path.join(dataset, saveFolderName, "02691156")
     saveFolder = os.path.join(dataset, saveFolderName)
 
